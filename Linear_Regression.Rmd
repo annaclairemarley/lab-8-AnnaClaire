@@ -9,15 +9,20 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Load the tidyverse and read in the data
-```{r}
+Load the packages and read in the data
+```{r, include = FALSE}
 
 library(tidyverse)
-salmon <- read_csv("salmon_simple.csv")
+library(knitr)
+library(kableExtra)
+library(stargazer)
+library(extrafont)
+salmon <- read_csv("salmon_simple.csv") %>% 
+  select(year, salmon_fresh)
 
 ```
 
-4. Exploratory scatterplot
+# 4. Exploratory scatterplot
 
 ```{r}
 salmon_plot <- ggplot(salmon, aes(x = year, y = salmon_fresh)) +
@@ -27,7 +32,7 @@ salmon_plot
 Overall there does look like there is a linear relationship, but there are some random outliers around 2005 and 2012
 
 
-5. Linear regression in R
+# 5. Linear regression in R
 
 ```{r}
 
@@ -42,7 +47,7 @@ Imports(tons) = -14982940 + 7550(Year)
 y intercept means that after 1984, salmon imports are negative, which doesn't make sense
 
 
-6. Model Diagnostics
+# 6. Model Diagnostics
 
 ```{r}
 par(mfrow = c(2,2))
@@ -51,11 +56,65 @@ plot(salmon_model)
 Residuals look normally distributed for the most part at first, but then become more widely spread.
 
 
+# 7. Explore model fit and significance 
+
+```{r}
+
+summary(salmon_model)
+
+```
+
+- Year does significantly predict salmon imports
+- R^2 is the proportion of variance in the outcome variable (y) that is explained by the predictor variable (x)
+- Around 6% of salmon imports not explained by year
 
 
+# 8. Prepare a final graph  
 
+- linear regression model with the:
+- original data
+- model
+- 95% confidence interval 
 
+geom_smooth() means
+se = TRUE means display confidence interval aorund smooth
 
+Allison example:
+
+```{r}
+salmon_final_graph <- ggplot(salmon, aes(x = year, y = salmon_fresh)) + geom_point() +
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20") + theme_bw() +
+  scale_x_continuous(expand = c(0,0), limits = c(1990, 2017)) +
+  labs(x = "Year", y = "U.S. Annual Fresh Salmon Imports\n(1,000 pounds)")
+
+salmon_final_graph
+```
+
+# 9. Make predictions using the model
+
+```{r}
+
+new_years <- data.frame(year = c(2022, 2024, 2026, 2028))
+
+future_predict <- predict(salmon_model, newdata = new_years, interval = "confidence") 
+future_predict
+
+# bind the prediction outcomes (column fit) with the new_years data to actually create a useful table of predicted imports and upper and lower CI
+
+ predictions <- data.frame(new_years, future_predict) 
+ predictions
+
+```
+
+# 10. Find Pearson's r (correlation)
+
+```{r}
+
+salmon_corr <- cor.test(salmon$year, salmon$salmon_fresh)
+salmon_corr
+
+```
+Stron positive correlation
 
 
 
