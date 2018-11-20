@@ -9,3 +9,75 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Load the tidyverse and read in the data
+```{r}
+
+library(tidyverse)
+salmon <- read_csv("salmon_simple.csv")
+
+```
+
+4. Exploratory scatterplot
+
+```{r}
+salmon_plot <- ggplot(salmon, aes(x = year, y = salmon_fresh)) +
+  geom_point()
+salmon_plot
+```
+Overall there does look like there is a linear relationship, but there are some random outliers around 2005 and 2012
+
+
+5. Linear regression in R
+
+```{r}
+
+salmon_model <- lm(salmon_fresh ~ year, data = salmon)
+
+salmon_model
+
+```
+
+Imports(tons) = -14982940 + 7550(Year)
+
+y intercept means that after 1984, salmon imports are negative, which doesn't make sense
+
+
+6. Model Diagnostics
+
+```{r}
+par(mfrow = c(2,2))
+plot(salmon_model)
+```
+Residuals look normally distributed for the most part at first, but then become more widely spread.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
